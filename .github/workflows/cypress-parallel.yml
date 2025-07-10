@@ -10,6 +10,7 @@ on:
 jobs:
   cypress-parallel:
     runs-on: ubuntu-latest
+    container: cypress/browsers:latest
     strategy:
       fail-fast: false
       matrix:
@@ -23,7 +24,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
 
     - name: Cache node_modules
       uses: actions/cache@v4
