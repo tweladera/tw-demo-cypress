@@ -1,0 +1,53 @@
+{
+  "validUser": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "gender": "Male",
+    "mobile": "1234567890",
+    "dateOfBirth": {
+      "day": "10",
+      "month": "January",
+      "year": "1990"
+    },
+    "subjects": ["Maths", "Computer Science"],
+    "hobbies": ["Sports", "Reading", "Music"],
+    "currentAddress": "123 Test Street, Test City, Test Country",
+    "state": "NCR",
+    "city": "Delhi"
+  },
+  "invalidUser": {
+    "firstName": "",
+    "lastName": "",
+    "email": "invalid-email",
+    "gender": "",
+    "mobile": "123",
+    "dateOfBirth": {
+      "day": "",
+      "month": "",
+      "year": ""
+    },
+    "subjects": [],
+    "hobbies": [],
+    "currentAddress": "",
+    "state": "",
+    "city": ""
+  },
+  "partialUser": {
+    "firstName": "Jane",
+    "lastName": "",
+    "email": "jane.smith@example.com",
+    "gender": "Female",
+    "mobile": "",
+    "dateOfBirth": {
+      "day": "15",
+      "month": "March",
+      "year": "1995"
+    },
+    "subjects": ["English"],
+    "hobbies": ["Reading"],
+    "currentAddress": "456 Another Street",
+    "state": "",
+    "city": ""
+  }
+}

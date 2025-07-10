@@ -1,0 +1,50 @@
+{
+  "name": "cypress-orangehrm-tests",
+  "version": "1.0.0",
+  "description": "Cypress tests for OrangeHRM Demo",
+  "main": "index.js",
+  "scripts": {
+    "cy:info": "cypress info",
+    "cy:verify": "cypress verify",
+    "cy:debug": "DEBUG=cypress:* cypress run --browser chrome --config chromeWebSecurity=true video=true",
+    "cy:clean": "rimraf cypress/downloads/* results/ || true",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
+  },
+  "keywords": [
+    "cypress",
+    "testing",
+    "e2e",
+    "automation"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cypress": "^0.1.6",
+    "adm-zip": "^0.5.16",
+    "axios": "^1.8.3",
+    "cypress": "^14.2.1",
+    "cypress-mochawesome-reporter": "^3.8.2",
+    "cypress-multi-reporters": "^2.0.5",
+    "cypress-on-fix": "^1.1.0",
+    "depcheck": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.20.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-define-config": "^2.1.0",
+    "eslint-plugin-cypress": "^4.1.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "form-data": "^4.0.2",
+    "fs-extra": "^11.3.0",
+    "globals": "^15.14.0",
+    "mocha-junit-reporter": "^2.2.1",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^5.0.0",
+    "mochawesome-report-generator": "^6.2.0",
+    "prettier": "^3.5.0",
+    "rimraf": "^6.0.1",
+    "standard-version": "^9.5.0",
+    "typescript": "^5.8.3"
+  }
+}

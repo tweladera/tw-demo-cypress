@@ -1,0 +1,33 @@
+{
+  "validUser": {
+    "username": "Admin",
+    "password": "admin123"
+  },
+  "invalidUser": {
+    "username": "invalid",
+    "password": "invalid"
+  },
+  "employeeData": {
+    "firstName": "John",
+    "middleName": "William",
+    "lastName": "Doe",
+    "employeeId": "12345",
+    "nationality": "American",
+    "maritalStatus": "Single",
+    "dateOfBirth": "1990-01-01",
+    "gender": "Male"
+  },
+  "menuItems": [
+    "Admin",
+    "PIM",
+    "Leave",
+    "Time",
+    "Recruitment",
+    "My Info",
+    "Performance",
+    "Dashboard",
+    "Directory",
+    "Maintenance",
+    "Buzz"
+  ]
+}
