@@ -75,28 +75,89 @@ ORANGEHRM_PASSWORD=admin123
 
 ### Configuración de Cypress
 
-El archivo `cypress.config.js` contiene la configuración principal:
+El archivo `cypress.config.js` contiene la configuración principal de Cypress:
 
-- Base URL: OrangeHRM Demo
-- Viewport: 1600x900
-- Timeout: 10 segundos
-- Videos y screenshots habilitados
-- Reportes con Mochawesome
+#### **Configuración Base**
+- **Base URL**: `https://opensource-demo.orangehrmlive.com/web/index.php`
+- **Viewport**: 1600x900 píxeles
+- **Default Command Timeout**: 10 segundos
+- **Spec Pattern**: `cypress/e2e/**/*.cy.{js,jsx,ts,tsx}`
+
+#### **Configuración de Video y Screenshots**
+- **Video**: Habilitado (`true`)
+- **Video Compression**: 32 (optimizado para CI/CD)
+- **Screenshot on Run Failure**: Habilitado (`true`)
+- **Videos Folder**: `cypress/results/videos`
+- **Screenshots Folder**: `cypress/results/screenshots`
+
+#### **Configuración Avanzada**
+- **Experimental Modify Obstructive Third Party Code**: Habilitado
+- **User Agent**: Configurado para macOS Chrome 120
+- **Watch for File Changes**: Deshabilitado (optimizado para CI/CD)
+
+#### **Configuración de Reportes**
+- **Reporter**: `cypress-multi-reporters`
+- **Mochawesome Reporter Options**:
+  - Charts habilitados
+  - Report Page Title: 'Cypress Report Test'
+  - Embedded Screenshots: Habilitado
+  - Inline Assets: Habilitado
+  - Save All Attempts: Deshabilitado
+  - Overwrite: Habilitado
+  - Report Directory: `cypress/results/mocha`
+  - Report Filename: `[status]_[datetime]-cypress-report`
+
+#### **Variables de Entorno**
+- **ORANGEHRM_USERNAME**: Cargado desde `.env`
+- **ORANGEHRM_PASSWORD**: Cargado desde `.env`
+
+#### **Plugins Configurados**
+- **cypress-on-fix**: Para compatibilidad con versiones de Cypress
+- **cypress-mochawesome-reporter**: Para generación de reportes HTML
 
 ## 📊 Reportes
 
 Los reportes se generan automáticamente en:
-- `cypress/results/mocha/` - Reportes HTML
+- `cypress/results/mocha/` - Reportes HTML con Mochawesome
 - `cypress/results/videos/` - Videos de las pruebas
 - `cypress/results/screenshots/` - Screenshots en caso de fallo
+
+### **Configuración de Reportes**
+El proyecto utiliza `cypress-mochawesome-reporter` para generar reportes HTML detallados:
+
+- **Charts**: Gráficos de resultados habilitados
+- **Embedded Screenshots**: Screenshots integrados en el reporte
+- **Inline Assets**: Assets integrados para portabilidad
+- **Report Directory**: `cypress/results/mocha`
+- **Report Filename**: Formato `[status]_[datetime]-cypress-report`
+
+### **Personalización de Reportes**
+Para modificar la configuración de reportes, edita la sección `reporterOptions` en `cypress.config.js`:
+
+```javascript
+reporterOptions: {
+  reporterEnabled: ['cypress-mochawesome-reporter'],
+  cypressMochawesomeReporterReporterOptions: {
+    charts: true,
+    reportPageTitle: 'Tu Título Personalizado',
+    embeddedScreenshots: true,
+    inlineAssets: true,
+    saveAllAttempts: false,
+    screenshotsFolder: './cypress/results/screenshots',
+    overwrite: true,
+    reportDir: 'cypress/results/mocha',
+    reportFilename: '[status]_[datetime]-cypress-report',
+  },
+}
+```
 
 ## 🚀 CI/CD con GitHub Actions
 
 ### Workflows Disponibles
 
-1. **cypress-tests.yml** - Workflow completo con múltiples navegadores
-2. **cypress-quick.yml** - Workflow rápido para desarrollo
-3. **cypress-optimized.yml** - Workflow optimizado con cache
+1. **cypress-chrome.yml** - Workflow optimizado para Chrome
+2. **cypress-electron.yml** - Workflow optimizado para Electron
+3. **cypress-parallel.yml** - Workflow paralelo (Chrome + Electron)
 
 ### Configuración de Secrets
 
@@ -104,8 +165,8 @@ En tu repositorio de GitHub, configura los siguientes secrets:
 
 1. Ve a **Settings** > **Secrets and variables** > **Actions**
 2. Agrega:
-   - `ORANGEHRM_USERNAME`: Usuario de OrangeHRM
-   - `ORANGEHRM_PASSWORD`: Contraseña de OrangeHRM
+   - `ORANGEHRM_USERNAME`: Admin
+   - `ORANGEHRM_PASSWORD`: admin123
 
 ### Triggers
 
@@ -125,8 +186,72 @@ tw-demo-cypress/
 │   └── results/       # Reportes y artifacts
 ├── .github/
 │   └── workflows/     # GitHub Actions
+│       ├── cypress-chrome.yml
+│       ├── cypress-electron.yml
+│       ├── cypress-parallel.yml
+│       └── README.md
 ├── cypress.config.js  # Configuración de Cypress
+├── env.example        # Plantilla de variables de entorno
 └── package.json       # Dependencias y scripts
+```
+
+## 🔧 Personalización de Configuración
+
+### **Modificar Configuración de Cypress**
+
+Para personalizar la configuración, edita `cypress.config.js`:
+
+#### **Configuración de Viewport**
+```javascript
+viewportWidth: 1600,  // Ancho del viewport
+viewportHeight: 900,   // Alto del viewport
+```
+
+#### **Configuración de Timeouts**
+```javascript
+defaultCommandTimeout: 10000,  // Timeout en milisegundos
+```
+
+#### **Configuración de Video**
+```javascript
+video: true,                    // Habilitar/deshabilitar video
+videoCompression: 32,          // Compresión de video (1-51)
+```
+
+#### **Configuración de Screenshots**
+```javascript
+screenshotOnRunFailure: true,  // Screenshots automáticos en fallo
+screenshotsFolder: 'cypress/results/screenshots',
+```
+
+#### **Configuración de User Agent**
+```javascript
+userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+```
+
+### **Variables de Entorno**
+
+Para agregar nuevas variables de entorno:
+
+1. **En `.env`:**
+```env
+ORANGEHRM_USERNAME=Admin
+ORANGEHRM_PASSWORD=admin123
+NUEVA_VARIABLE=valor
+```
+
+2. **En `cypress.config.js`:**
+```javascript
+env: {
+  ORANGEHRM_USERNAME: process.env.ORANGEHRM_USERNAME,
+  ORANGEHRM_PASSWORD: process.env.ORANGEHRM_PASSWORD,
+  NUEVA_VARIABLE: process.env.NUEVA_VARIABLE,
+}
+```
+
+3. **En las pruebas:**
+```javascript
+cy.log(Cypress.env('NUEVA_VARIABLE'))
 ```
 
 ## 🐛 Troubleshooting
@@ -136,14 +261,27 @@ tw-demo-cypress/
 1. **Tests fallan en CI pero pasan localmente**
    - Verifica variables de entorno en GitHub Secrets
    - Revisa logs de CI para errores específicos
+   - Verifica que el cache no esté corrupto
 
 2. **Videos no se generan**
    - Verifica `video: true` en configuración
    - Revisa espacio en disco del runner
+   - Verifica que `trashAssetsBeforeRuns: true` esté configurado
 
 3. **Tests son lentos**
-   - Usa el workflow rápido para desarrollo
+   - El cache de node_modules debería acelerar las builds
+   - Usa el workflow paralelo para mayor eficiencia
    - Optimiza las pruebas
+
+4. **Errores de cache**
+   - Los workflows eliminan node_modules y reinstalan
+   - Verifica que package-lock.json esté actualizado
+   - Revisa los logs de cache en los workflows
+
+5. **Problemas con reportes**
+   - Verifica que `cypress-mochawesome-reporter` esté instalado
+   - Revisa la configuración de `reporterOptions`
+   - Verifica permisos de escritura en `cypress/results/`
 
 ### Logs y Debug
 
@@ -170,9 +308,43 @@ npm run cy:clean
 
 Este proyecto está bajo la Licencia ISC.
 
+## 📦 Plugins y Dependencias
+
+### **Plugins Principales**
+
+#### **cypress-mochawesome-reporter**
+- **Propósito**: Generación de reportes HTML detallados
+- **Configuración**: Automática en `cypress.config.js`
+- **Output**: Reportes en `cypress/results/mocha/`
+
+#### **cypress-on-fix**
+- **Propósito**: Compatibilidad con versiones de Cypress
+- **Configuración**: Automática en `setupNodeEvents`
+
+#### **cypress-multi-reporters**
+- **Propósito**: Soporte para múltiples reportes
+- **Configuración**: Integrado con Mochawesome
+
+### **Dependencias de Desarrollo**
+
+#### **Reportes**
+- `mochawesome`: Generador de reportes HTML
+- `mochawesome-merge`: Combinación de reportes
+- `mochawesome-report-generator`: Generación de reportes
+
+#### **Utilidades**
+- `rimraf`: Limpieza de archivos
+- `dotenv`: Variables de entorno
+- `eslint`: Linting de código
+
+#### **Testing**
+- `cypress`: Framework de testing
+- `@types/cypress`: Tipos de TypeScript
+
 ## 📞 Soporte
 
 Para soporte, revisa:
 - [Documentación de Cypress](https://docs.cypress.io/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Mochawesome Documentation](https://github.com/adamgruber/mochawesome)
 - Issues del repositorio

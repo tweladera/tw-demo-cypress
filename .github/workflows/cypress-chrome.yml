@@ -1,0 +1,81 @@
+name: Cypress Tests - Chrome
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  cypress-chrome:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Cache node_modules
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Remove node_modules and reinstall
+      run: |
+        rm -rf ./node_modules
+        npm install
+
+    - name: Cypress cache path
+      run: ./node_modules/.bin/cypress cache path
+
+    - name: Cypress cache list
+      run: ./node_modules/.bin/cypress cache list
+
+    - name: Cypress info
+      run: ./node_modules/.bin/cypress info
+
+    - name: Run Cypress tests on Chrome
+      uses: cypress-io/github-action@v6
+      with:
+        browser: chrome
+        headless: true
+        record: false
+        config: |
+          video=true
+          screenshotOnRunFailure=true
+          trashAssetsBeforeRuns=true
+          videoCompression=32
+        env: |
+          ORANGEHRM_USERNAME=${{ secrets.ORANGEHRM_USERNAME }}
+          ORANGEHRM_PASSWORD=${{ secrets.ORANGEHRM_PASSWORD }}
+          CI=true
+
+    - name: Upload videos
+      uses: actions/upload-artifact@v4
+      with:
+        name: cypress-videos-chrome
+        path: cypress/results/videos/
+        retention-days: 2
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: cypress-results-chrome
+        path: cypress/results/
+        retention-days: 2
+
+    - name: Upload screenshots
+      uses: actions/upload-artifact@v4
+      with:
+        name: cypress-screenshots-chrome
+        path: cypress/results/screenshots/
+        retention-days: 2 
