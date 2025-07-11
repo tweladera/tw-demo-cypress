@@ -11,12 +11,7 @@
     "cy:open": "cypress open",
     "cy:run": "cypress run"
   },
-  "keywords": [
-    "cypress",
-    "testing",
-    "e2e",
-    "automation"
-  ],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {

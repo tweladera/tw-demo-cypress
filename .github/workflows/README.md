@@ -1,26 +1,17 @@
-# GitHub Actions Workflows para Cypress
+# GitHub Actions Workflow para Cypress
 
-Este directorio contiene los workflows de GitHub Actions para ejecutar las pruebas de Cypress automáticamente, optimizados para Chrome y Electron.
+Este directorio contiene el workflow de GitHub Actions para ejecutar las pruebas de Cypress automáticamente, optimizado para Chrome y Electron.
 
-## Workflows Disponibles
+## Workflow Disponible
 
-### 1. `cypress-chrome.yml` - Workflow para Chrome
-- Ejecuta pruebas específicamente en Chrome
-- Optimizado con cache de node_modules
-- Artifacts con retención de 2 días
-- Incluye comandos de cache de Cypress
-
-### 2. `cypress-electron.yml` - Workflow para Electron
-- Ejecuta pruebas específicamente en Electron
-- Optimizado con cache de node_modules
-- Artifacts con retención de 2 días
-- Incluye comandos de cache de Cypress
-
-### 3. `cypress-parallel.yml` - Workflow Paralelo
+### `cypress.yml` - Workflow Unificado
 - Ejecuta pruebas en Chrome y Electron en paralelo
 - Usa matriz de navegadores para eficiencia
 - Fail-fast deshabilitado para mayor estabilidad
+- Optimizado con cache de node_modules
+- Artifacts con retención de 2 días
 - Artifacts separados por navegador
+- Incluye comandos de cache de Cypress
 
 ## Configuración de Secrets
 

@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 describe('OrangeHRM Login Tests', () => {
   beforeEach(() => {
     cy.visit('/auth/login')
@@ -33,7 +34,7 @@ describe('OrangeHRM Login Tests', () => {
     cy.fixture('orangehrm').then((data) => {
       // Login with valid credentials from fixture
       cy.loginToOrangeHRM(data.validUser.username, data.validUser.password)
-      
+
       // Verify successful login
       cy.url().should('include', '/dashboard/index')
       cy.get('.oxd-topbar-header-title').should('contain', 'Dashboard')
@@ -45,7 +46,7 @@ describe('OrangeHRM Login Tests', () => {
     cy.fixture('orangehrm').then((data) => {
       // Login with invalid credentials
       cy.loginToOrangeHRM(data.invalidUser.username, data.invalidUser.password)
-      
+
       // Verify error message
       cy.get('.oxd-alert-content').should('be.visible')
       cy.get('.oxd-alert-content').should('contain', 'Invalid credentials')

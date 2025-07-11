@@ -153,11 +153,9 @@ reporterOptions: {
 
 ## 🚀 CI/CD con GitHub Actions
 
-### Workflows Disponibles
+### Workflow Disponible
 
-1. **cypress-chrome.yml** - Workflow optimizado para Chrome
-2. **cypress-electron.yml** - Workflow optimizado para Electron
-3. **cypress-parallel.yml** - Workflow paralelo (Chrome + Electron)
+**cypress.yml** - Workflow unificado que ejecuta pruebas en Chrome y Electron en paralelo
 
 ### Configuración de Secrets
 
@@ -186,9 +184,7 @@ tw-demo-cypress/
 │   └── results/       # Reportes y artifacts
 ├── .github/
 │   └── workflows/     # GitHub Actions
-│       ├── cypress-chrome.yml
-│       ├── cypress-electron.yml
-│       ├── cypress-parallel.yml
+│       ├── cypress.yml
 │       └── README.md
 ├── cypress.config.js  # Configuración de Cypress
 ├── env.example        # Plantilla de variables de entorno
