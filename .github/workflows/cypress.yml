@@ -10,7 +10,7 @@ on:
 jobs:
   cypress-tests:
     runs-on: ubuntu-latest
-    container: cypress/browsers:latest
+    container: cypress/browsers:node20.11.1-chrome123-ff124-edge123
     strategy:
       fail-fast: false
       matrix:
@@ -20,38 +20,42 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
-    - name: Cache node_modules
-      uses: actions/cache@v4
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
-    - name: Remove node_modules and reinstall
-      run: |
-        rm -rf ./node_modules
-        npm install
-
-    - name: Cypress cache path
-      run: ./node_modules/.bin/cypress cache path
-
-    - name: Cypress cache list
-      run: ./node_modules/.bin/cypress cache list
-
-    - name: Cypress info
-      run: ./node_modules/.bin/cypress info
-
-    - name: Run Cypress tests on ${{ matrix.browser }}
+    # Install NPM dependencies, cache them correctly
+    # and run all Cypress tests
+    - name: Cypress run
       uses: cypress-io/github-action@v6
       with:
         browser: ${{ matrix.browser }}
-        record: false
+        # No build step needed for this project
+        # Use the project's custom run command
+        command: npm run cy:run
+        # Recommended: record results to Cypress Cloud
+        # record: true
+        # Recommended: pass the GitHub token to allow accurately detecting a build vs a re-run build
+        # github-token: ${{ secrets.GITHUB_TOKEN }}
+        # Recommended: enable parallel builds
+        # parallel: true
+        # Recommended: enable debugging
+        # debug: true
+        # Recommended: group test results by spec file
+        # group: 'UI - Chrome'
+        # Recommended: start the server before running tests
+        # start: npm start
+        # Recommended: wait for the server to be ready before running tests
+        # wait-on: 'http://localhost:3000'
+        # Recommended: run tests in headed mode
+        # headed: true
+        # Recommended: run tests in headless mode
+        # headless: true
+        # Recommended: run tests in quiet mode
+        # quiet: true
+        # Recommended: run tests with specific tags
+        # tag: 'production,staging'
+        # Recommended: run tests with specific spec files
+        # spec: 'cypress/e2e/**/*.cy.js'
+        # Recommended: run tests with specific environment variables
+        # env: 'host=api.dev.local,port=4222'
+        # Recommended: run tests with specific config
         config: |
           video=true
           screenshotOnRunFailure=true
@@ -60,6 +64,12 @@ jobs:
       env:
         ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME }}
         ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD }}
+        # pass GitHub token to allow accurately detecting a build vs a re-run build
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # pass the Dashboard record key as an environment variable
+        # CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        # pass Cypress Cloud project ID as an environment variable
+        # CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
         CI: true
 
     - name: Upload all Cypress results
