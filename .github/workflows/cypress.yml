@@ -1,3 +1,4 @@
+
 name: Cypress Tests
 
 on:
@@ -8,56 +9,51 @@ on:
   workflow_dispatch:
 
 jobs:
-  pruebas-cypress:
+  cypress-tests:
     runs-on: ubuntu-latest
     container: cypress/browsers:latest
-    
+
     strategy:
       fail-fast: false
       matrix:
         browser: [chrome, electron]
 
     steps:
-    - name: Code checkout
+    - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Configure Node.js
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
         cache: 'npm'
-
-    - name: node_modules cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
 
     - name: Install dependencies
       run: |
-        npm ci
+        npm install --legacy-peer-deps
+      env:
+        CI: true
 
-    - name: Check Cypress
+    - name: Verify Cypress
       run: npx cypress verify
 
-    - name: Run tests on ${{ matrix.browser }}
+    - name: Run Cypress tests on ${{ matrix.browser }}
       uses: cypress-io/github-action@v6
       with:
         browser: ${{ matrix.browser }}
         record: false
         config-file: cypress.config.js
+        install: false
       env:
         ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME }}
         ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD }}
         CI: true
 
-    - name: Upload results
+    - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: resultados-cypress-${{ matrix.browser }}
+        name: cypress-results-${{ matrix.browser }}
         path: |
           cypress/results/videos/
           cypress/results/screenshots/
