@@ -19,43 +19,47 @@ jobs:
         browser: [chrome, electron]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
 
-    - name: Install dependencies
-      run: |
-        npm install --legacy-peer-deps
-      env:
-        CI: true
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-    - name: Verify Cypress
-      run: npx cypress verify
+      - name: Install dependencies
+        run: |
+          rm -rf ./node_modules
+          npm install --no-optional
 
-    - name: Run Cypress tests on ${{ matrix.browser }}
-      uses: cypress-io/github-action@v6
-      with:
-        browser: ${{ matrix.browser }}
-        record: false
-        config-file: cypress.config.js
-        install: false
-      env:
-        ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME }}
-        ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD }}
-        CI: true
+      - name: Cypress verify
+        run: npx cypress verify
 
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: cypress-results-${{ matrix.browser }}
-        path: |
-          cypress/results/videos/
-          cypress/results/screenshots/
-          cypress/results/report/
-        retention-days: 5
+      - name: Run Cypress tests on ${{ matrix.browser }}
+        uses: cypress-io/github-action@v6
+        with:
+          browser: ${{ matrix.browser }}
+          record: false
+          config-file: cypress.config.js
+          install: false
+        env:
+          ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME }}
+          ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD }}
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-results-${{ matrix.browser }}
+          path: cypress/results/
+          retention-days: 5
