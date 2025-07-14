@@ -8,64 +8,58 @@ on:
   workflow_dispatch:
 
 jobs:
-  cypress-tests:
+  pruebas-cypress:
     runs-on: ubuntu-latest
     container: cypress/browsers:latest
+    
     strategy:
       fail-fast: false
       matrix:
         browser: [chrome, electron]
 
     steps:
-    - name: Checkout code
+    - name: Code checkout
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    - name: Configure Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+        cache: 'npm'
 
-    - name: Cache node_modules
+    - name: node_modules cache
       uses: actions/cache@v4
       with:
-        path: node_modules
+        path: ~/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
 
-    - name: Remove node_modules and reinstall
+    - name: Install dependencies
       run: |
-        rm -rf ./node_modules
-        npm install
+        npm ci
 
-    - name: Cypress cache path
-      run: ./node_modules/.bin/cypress cache path
+    - name: Check Cypress
+      run: npx cypress verify
 
-    - name: Cypress cache list
-      run: ./node_modules/.bin/cypress cache list
-
-    - name: Cypress info
-      run: ./node_modules/.bin/cypress info
-
-    - name: Run Cypress tests on ${{ matrix.browser }}
+    - name: Run tests on ${{ matrix.browser }}
       uses: cypress-io/github-action@v6
       with:
         browser: ${{ matrix.browser }}
         record: false
-        config: |
-          video=true
-          screenshotOnRunFailure=true
-          trashAssetsBeforeRuns=true
-          videoCompression=32
+        config-file: cypress.config.js
       env:
         ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME }}
         ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD }}
         CI: true
 
-    - name: Upload all Cypress results
+    - name: Upload results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: cypress-results-${{ matrix.browser }}
-        path: cypress/results/
-        retention-days: 2
+        name: resultados-cypress-${{ matrix.browser }}
+        path: |
+          cypress/results/videos/
+          cypress/results/screenshots/
+          cypress/results/report/
+        retention-days: 5

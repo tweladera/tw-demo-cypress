@@ -1,18 +1,13 @@
 const {defineConfig} = require('cypress')
 require('dotenv').config()
 
-async function setupNodeEvents(on, config) {
-	require('cypress-mochawesome-reporter/plugin')(on)
-
-	return {
-		...config,
-		baseUrl: 'https://opensource-demo.orangehrmlive.com/web/index.php',
-	}
-}
-
 module.exports = defineConfig({
 	e2e: {
-		setupNodeEvents,
+		setupNodeEvents(on, config) {
+      		require('cypress-mochawesome-reporter/plugin')(on);
+    	},
+		baseUrl: 'https://opensource-demo.orangehrmlive.com/web/index.php',
+		
 		/** ================================================ **
 		 ** Environment variables
 		 ** ================================================ **/
@@ -23,11 +18,11 @@ module.exports = defineConfig({
 		/** ================================================ **
 		 ** Base Configuration
 		 ** ================================================ **/
+		video: false,
+		videoCompression: 32,
 		viewportWidth: 1600,
 		viewportHeight: 900,
 		defaultCommandTimeout: 10000,
-		video: false,
-		//videoCompression: 32,
 		watchForFileChanges: false,
 		screenshotOnRunFailure: true,
 
@@ -38,7 +33,7 @@ module.exports = defineConfig({
 		/** ================================================ **
 		 ** Advanced configuration
 		 ** ================================================ **/
-		//experimentalInteractiveRunEvents: true,
+		experimentalInteractiveRunEvents: true,
 		experimentalModifyObstructiveThirdPartyCode: true,
 		userAgent:
 			'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -47,17 +42,15 @@ module.exports = defineConfig({
 		 ** Report Options
 		 ** ================================================ **/
 		reporter: 'cypress-mochawesome-reporter',
-		reporterOptions: {
+  		reporterOptions: {
 			charts: true,
 			saveJson: true,
 			reportPageTitle: 'Cypress Report Test',
 			embeddedScreenshots: true,
 			inlineAssets: true,
 			saveAllAttempts: false,
-			screenshotsFolder: './cypress/results/screenshots',
-			videosFolder: './cypress/results/videos',
 			overwrite: true,
-			reportDir: 'cypress/results/mocha-report',
+			reportDir: 'cypress/results/report',
 			reportFilename: '[status]_[datetime]-cypress-report',
 			quiet: true,
 		},
