@@ -181,6 +181,8 @@ tw-demo-cypress/
 │   ├── e2e/           # Pruebas E2E
 │   ├── fixtures/      # Datos de prueba
 │   ├── support/       # Comandos personalizados
+│   │   ├── pages/     # Page Objects para el patrón POM
+│   │   └── services/  # Service Objects para pruebas de API
 │   └── results/       # Reportes y artifacts
 ├── .github/
 │   └── workflows/     # GitHub Actions
@@ -189,6 +191,168 @@ tw-demo-cypress/
 ├── cypress.config.js  # Configuración de Cypress
 ├── env.example        # Plantilla de variables de entorno
 └── package.json       # Dependencias y scripts
+```
+
+## 🧩 Page Object Model (POM) y Service Objects
+
+### **¿Qué es el Page Object Model?**
+
+El Page Object Model (POM) es un patrón de diseño que permite crear una capa de abstracción entre los tests y el código de la interfaz de usuario. Cada página de la aplicación se representa como una clase que encapsula los elementos de la página y las acciones que se pueden realizar en ella.
+
+### **Beneficios del Page Object Model**
+
+- **Mantenibilidad**: Cambios en la UI solo requieren modificaciones en un solo lugar
+- **Reutilización**: Los mismos page objects pueden usarse en múltiples tests
+- **Legibilidad**: Los tests se vuelven más claros y enfocados en el comportamiento
+- **Reducción de duplicación**: Evita repetir código para interactuar con los mismos elementos
+- **Separación de responsabilidades**: Separa la lógica de test de la implementación de la UI
+
+### **Estructura de Page Objects en el Proyecto**
+
+El proyecto implementa el patrón POM con la siguiente estructura:
+
+```
+cypress/support/pages/
+├── index.js                # Exporta todos los page objects
+├── LoginPage.js            # Page object para la página de login
+├── DashboardPage.js        # Page object para la página de dashboard
+├── AdminPage.js            # Page object para la sección de Admin
+├── PIMPage.js              # Page object para la sección de PIM
+└── NavigationComponent.js  # Componente reutilizable para la navegación
+```
+
+Cada page object sigue una estructura similar:
+
+1. **Selectors**: Selectores CSS para los elementos de la página
+2. **Actions**: Métodos que realizan acciones en la página
+3. **Combined Actions**: Métodos que combinan múltiples acciones
+4. **Assertions**: Métodos que verifican el estado de la página
+
+### **Ejemplo de Page Object**
+
+```javascript
+// Ejemplo simplificado de LoginPage.js
+class LoginPage {
+    // Selectors
+    usernameInput = 'input[name="username"]';
+    passwordInput = 'input[name="password"]';
+    loginButton = 'button[type="submit"]';
+    
+    // Actions
+    visit() {
+        cy.visit('/auth/login');
+        return this;
+    }
+    
+    typeUsername(username) {
+        cy.get(this.usernameInput).type(username);
+        return this;
+    }
+    
+    typePassword(password) {
+        cy.get(this.passwordInput).type(password);
+        return this;
+    }
+    
+    clickLogin() {
+        cy.get(this.loginButton).click();
+        return this;
+    }
+    
+    // Combined actions
+    login(username, password) {
+        this.typeUsername(username);
+        this.typePassword(password);
+        this.clickLogin();
+        return this;
+    }
+}
+
+export default new LoginPage();
+```
+
+### **Uso de Page Objects en Tests**
+
+```javascript
+// Ejemplo de uso en un test
+import { LoginPage, DashboardPage } from '../support/pages';
+
+describe('Login Tests', () => {
+  it('should login successfully', () => {
+    LoginPage
+      .visit()
+      .typeUsername('Admin')
+      .typePassword('admin123')
+      .clickLogin();
+      
+    DashboardPage.verifyDashboardIsDisplayed();
+  });
+  
+  it('should login with combined action', () => {
+    LoginPage
+      .visit()
+      .login('Admin', 'admin123');
+      
+    DashboardPage.verifyDashboardIsDisplayed();
+  });
+});
+```
+
+### **Service Objects para Pruebas de API**
+
+Además del POM para pruebas de UI, el proyecto implementa Service Objects para pruebas de API:
+
+```
+cypress/support/services/
+├── index.js                # Exporta todos los service objects
+└── PokemonAPI.js           # Service object para la API de Pokemon
+```
+
+Los service objects siguen un patrón similar al POM, pero enfocados en interacciones con APIs:
+
+1. **API Methods**: Métodos que realizan peticiones a la API
+2. **Assertion Methods**: Métodos que verifican las respuestas de la API
+
+### **Ejemplo de Service Object**
+
+```javascript
+// Ejemplo simplificado de PokemonAPI.js
+class PokemonAPI {
+    // Base URL
+    baseUrl = 'https://pokeapi.co/api/v2/';
+    
+    // API Methods
+    getPokemonById(id) {
+        return cy.api({
+            method: 'GET',
+            url: `${this.baseUrl}pokemon/${id}`
+        });
+    }
+    
+    // Assertion Methods
+    verifyPokemonResponse(response, expectedName) {
+        expect(response.status).to.eq(200);
+        expect(response.body.name).to.eq(expectedName);
+        return this;
+    }
+}
+
+export default new PokemonAPI();
+```
+
+### **Uso de Service Objects en Tests**
+
+```javascript
+// Ejemplo de uso en un test
+import { PokemonAPI } from '../support/services';
+
+describe('Pokemon API Tests', () => {
+  it('should retrieve Pokemon information', () => {
+    PokemonAPI.getPokemonById(25).then((response) => {
+      PokemonAPI.verifyPokemonResponse(response, 'pikachu');
+    });
+  });
+});
 ```
 
 ## 🔧 Personalización de Configuración

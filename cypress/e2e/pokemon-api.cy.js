@@ -1,76 +1,45 @@
+// Import API service
+import { PokemonAPI } from '../support/services/';
+
 describe('Pokemon GO API Tests', () => {
   beforeEach(() => {
     // Set up base URL for all tests
-    cy.api({
-      url: 'https://pokeapi.co/api/v2/',
-      failOnStatusCode: false
-    }).as('baseUrl');
+    PokemonAPI.getBaseUrl();
   });
 
   it('GET - Should retrieve ability information by ID', () => {
-    cy.api({
-      method: 'GET',
-      url: 'https://pokeapi.co/api/v2/ability/1'
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.name).to.eq('stench');
-      expect(response.body).to.have.property('effect_entries');
+    PokemonAPI.getAbilityById(1).then((response) => {
+      PokemonAPI.verifyAbilityResponse(response, 'stench');
     });
   });
 
   it('GET - Should handle non-existent ability ID', () => {
-    cy.api({
-      method: 'GET',
-      url: 'https://pokeapi.co/api/v2/ability/9999',
-      failOnStatusCode: false
-    }).then((response) => {
-      expect(response.status).to.eq(404);
+    PokemonAPI.getNonExistentAbility().then((response) => {
+      PokemonAPI.verifyNotFoundResponse(response);
     });
   });
 
   it('GET - Should retrieve Pokemon information by ID', () => {
-    cy.api({
-      method: 'GET',
-      url: 'https://pokeapi.co/api/v2/pokemon/25'
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.name).to.eq('pikachu');
-      expect(response.body).to.have.property('abilities');
-      expect(response.body).to.have.property('stats');
+    PokemonAPI.getPokemonById(25).then((response) => {
+      PokemonAPI.verifyPokemonResponse(response, 'pikachu');
     });
   });
 
   it('GET - Should retrieve abilities with pagination', () => {
-    cy.api({
-      method: 'GET',
-      url: 'https://pokeapi.co/api/v2/ability?limit=5&offset=10'
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body).to.have.property('results');
-      expect(response.body.results).to.have.length(5);
+    PokemonAPI.getAbilitiesWithPagination().then((response) => {
+      PokemonAPI.verifyPaginationResponse(response, 5);
     });
   });
 
   it('GET - Should retrieve detailed type information by ID with all required properties', () => {
-    cy.api({
-      method: 'GET',
-      url: 'https://pokeapi.co/api/v2/type/13'
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body.name).to.eq('electric');
-      expect(response.body).to.have.property('damage_relations');
-      expect(response.body).to.have.property('pokemon');
-      expect(response.body).to.have.property('moves');
+    PokemonAPI.getTypeById(13).then((response) => {
+      PokemonAPI.verifyTypeResponse(response, 'electric');
     });
   });
 
   it('GET - Should handle invalid endpoint request', () => {
-    cy.api({
-      method: 'GET',
-      url: 'https://pokeapi.co/api/v2/invalid_endpoint',
-      failOnStatusCode: false
-    }).then((response) => {
-      expect(response.status).to.eq(400);
+    PokemonAPI.getInvalidEndpoint().then((response) => {
+      PokemonAPI.verifyBadRequestResponse(response);
     });
   });
 });

@@ -25,13 +25,18 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 
+// Import page objects
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+
 Cypress.Commands.add('loginToOrangeHRM', (username, password) => {
-  cy.visit('/auth/login')
-  cy.get('input[name="username"]').type(username)
-  cy.get('input[name="password"]').type(password)
-  cy.get('button[type="submit"]').click()
+  LoginPage.visit()
+    .typeUsername(username)
+    .typePassword(password)
+    .clickLogin();
+
   // Wait for dashboard to load
-  //cy.get('.oxd-topbar-header').should('be.visible')
+  DashboardPage.verifyDashboardIsDisplayed();
 })
 
 // Helper command to login with credentials from .env
