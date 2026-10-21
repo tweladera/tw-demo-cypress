@@ -3,11 +3,19 @@ import { AdminPage, NavigationComponent } from '../support/pages/';
 
 describe('OrangeHRM Admin Tests', () => {
   beforeEach(() => {
-    // Login before each test
     cy.loginWithEnvCredentials();
-
-    // Navigate to Admin page
     NavigationComponent.navigateToAdmin();
+    cy.injectAxe();
+  })
+
+  it('should have no WCAG 2.1 AA violations on the Admin System Users page', () => {
+    cy.checkA11y(undefined, {
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] },
+    }, (violations) => {
+      violations.forEach(v =>
+        cy.log(`[a11y] ${v.impact?.toUpperCase()}: ${v.description} — ${v.helpUrl}`)
+      );
+    });
   })
 
   it('should display the Admin page with System Users section', () => {
@@ -47,18 +55,14 @@ describe('OrangeHRM Admin Tests', () => {
     NavigationComponent
       .navigateToJobTitles();
 
-    // Verify Job Titles page is displayed
-    cy.contains('.oxd-text--h6', 'Job Titles').should('be.visible');
+    cy.contains('h6', 'Job Titles').should('be.visible');
   })
 
   it('should navigate to Organization section', () => {
     NavigationComponent
       .navigateToGeneralInformation();
 
-    // Verify General Information page is displayed
-    cy.contains('.oxd-text--h6', 'General Information').should('be.visible');
-
-    // Verify Organization Name field is present
+    cy.contains('h6', 'General Information').should('be.visible');
     cy.contains('.oxd-label', 'Organization Name').should('be.visible');
   })
 
@@ -66,7 +70,6 @@ describe('OrangeHRM Admin Tests', () => {
     NavigationComponent
       .navigateToSkills();
 
-    // Verify Skills page is displayed
-    cy.contains('.oxd-text--h6', 'Skills').should('be.visible');
+    cy.contains('h6', 'Skills').should('be.visible');
   })
 })

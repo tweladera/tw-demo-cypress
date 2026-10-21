@@ -14,6 +14,14 @@ mochawesome-report/
 merged-report.json!/cypress/results/
 merged-report.json
 
+# Visual regression — diffs and comparisons are generated artifacts, not committed
+# Baseline screenshots (cypress/snapshots/baseline/) SHOULD be committed to git
+cypress/snapshots/diff/
+cypress/snapshots/comparison/
+
+# cypress-image-diff-js HTML reports — generated artifact, not committed
+cypress-image-diff-html-report/
+
 # OS specific files
 .DS_Store
 Thumbs.db
@@ -35,3 +43,24 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+
+# tw-ai-toolkit (managed by install.py — do not commit)
+.ai/toolkit/
+
+# tw-ai-toolkit (managed by install.py — do not commit)
+.claude/skills/
+
+# tw-ai-toolkit (managed by install.py — do not commit)
+.claude/rules/
+
+# tw-ai-toolkit (managed by install.py — do not commit)
+.claude/commands/
+
+# tw-ai-toolkit (managed by install.py — do not commit)
+.cursor/skills/
+
+# tw-ai-toolkit (managed by install.py — do not commit)
+.cursor/rules/
+
+# tw-ai-toolkit (managed by install.py — do not commit)
+CLAUDE.md

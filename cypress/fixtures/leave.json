@@ -1,0 +1,9 @@
+{
+  "_comment": "Test data for leave module — do not use production data. Date format: yyyy-dd-mm (OrangeHRM locale).",
+  "leaveRequest": {
+    "leaveType": "Annual Leave",
+    "fromDate": "2027-01-15",
+    "toDate": "2027-01-15",
+    "comment": "Automated test leave request"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "_comment": "Test data for Admin User CRUD scenarios — do not use production data",
+  "newUser": {
+    "username": "e2e_testuser_001",
+    "password": "TestPass123!",
+    "confirmPassword": "TestPass123!",
+    "role": "ESS",
+    "status": "Enabled"
+  },
+  "duplicateUser": {
+    "username": "Admin"
+  },
+  "mismatchedPasswords": {
+    "username": "e2e_testuser_mismatch",
+    "password": "TestPass123!",
+    "confirmPassword": "DifferentPass456!"
+  },
+  "searchCriteria": {
+    "username": "Admin",
+    "role": "Admin",
+    "status": "Enabled"
+  },
+  "xssPayload": "<script>alert('xss')</script>",
+  "sqlPayload": "' OR '1'='1"
+}

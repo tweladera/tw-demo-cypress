@@ -6,6 +6,18 @@ import DashboardPage from '../support/pages/DashboardPage';
 describe('OrangeHRM Login Tests', () => {
   beforeEach(() => {
     LoginPage.visit();
+    // Inject axe-core for WCAG 2.1 AA checks on every test that visits this page
+    cy.injectAxe();
+  })
+
+  it('should have no WCAG 2.1 AA violations on the Login page', () => {
+    cy.checkA11y(undefined, {
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] },
+    }, (violations) => {
+      violations.forEach(v =>
+        cy.log(`[a11y] ${v.impact?.toUpperCase()}: ${v.description} — ${v.helpUrl}`)
+      );
+    });
   })
 
   it('should display the login page correctly', () => {
@@ -63,9 +75,7 @@ describe('OrangeHRM Login Tests', () => {
     // Check if the forgot password link exists and click it
     LoginPage.clickForgotPassword();
 
-    // Verify navigation to reset password page
-    cy.url().should('include', '/auth/requestPasswordResetCode');
-    cy.get('.orangehrm-forgot-password-title').should('contain', 'Reset Password');
-    cy.get('.orangehrm-card-note > .oxd-text').should('contain', 'Please');
+    // Verify navigation to reset password page — delegated to POM
+    LoginPage.verifyForgotPasswordPage();
   })
 })

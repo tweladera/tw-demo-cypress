@@ -1,10 +1,13 @@
 const {defineConfig} = require('cypress')
+const getCompareSnapshotsPlugin = require('cypress-image-diff-js/plugin')
 require('dotenv').config()
 
 module.exports = defineConfig({
 	e2e: {
 		setupNodeEvents(on, config) {
       		require('cypress-mochawesome-reporter/plugin')(on);
+			getCompareSnapshotsPlugin(on, config);
+			return config;
     	},
 		baseUrl: 'https://opensource-demo.orangehrmlive.com/web/index.php',
 		
@@ -13,7 +16,12 @@ module.exports = defineConfig({
 		 ** ================================================ **/
 		env: {
 			ORANGEHRM_USERNAME: process.env.ORANGEHRM_USERNAME,
-			ORANGEHRM_PASSWORD: process.env.ORANGEHRM_PASSWORD
+			ORANGEHRM_PASSWORD: process.env.ORANGEHRM_PASSWORD,
+			// cypress-image-diff-js global config (0.1% pixel diff threshold)
+			cypressImageDiff: {
+				errorThreshold: 0.1,
+				screenshotsFolder: 'cypress/snapshots',
+			},
 		},
 		/** ================================================ **
 		 ** Base Configuration

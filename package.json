@@ -7,10 +7,13 @@
     "cy:info": "cypress info",
     "cy:verify": "cypress verify",
     "cy:debug": "DEBUG=cypress:* cypress run --browser chrome --config chromeWebSecurity=true video=true",
-    "cy:clean": "rimraf cypress/downloads/* results/ || true",
+    "cy:clean": "rimraf cypress/downloads/* results/ cypress/snapshots/diff/ cypress/snapshots/comparison/ || true",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "cy:run:spec": "cypress run --spec cypress/e2e/orangehrm-navigation.cy.js"
+    "cy:run:spec": "cypress run --spec cypress/e2e/orangehrm-navigation.cy.js",
+    "cy:visual:capture": "cypress run --spec 'cypress/e2e/visual/**' --env updateSnapshots=true",
+    "cy:visual:compare": "cypress run --spec 'cypress/e2e/visual/**'",
+    "cy:a11y": "cypress run --spec 'cypress/e2e/orangehrm-a11y.cy.js'"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +21,7 @@
   "devDependencies": {
     "@types/cypress": "^0.1.6",
     "cypress": "^14.5.2",
+    "cypress-image-diff-js": "^2.8.0",
     "cypress-mochawesome-reporter": "^4.0.0",
     "cypress-plugin-api": "^2.11.2",
     "dotenv": "^16.4.7",
@@ -26,5 +30,15 @@
     "mochawesome-report-generator": "^6.2.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3"
+  },
+  "_pendingUpdates": {
+    "_comment": "These packages require Artifactory admin to add them before upgrading",
+    "cypress": "16.2.0 — requires Artifactory sync",
+    "cypress-axe": "1.7.0 — NOT in Artifactory, install manually (see README)",
+    "axe-core": "4.14.0 — NOT in Artifactory, install manually (see README)",
+    "cypress-mochawesome-reporter": "5.0.0 — requires Artifactory sync",
+    "mochawesome": "8.1.1 — requires Artifactory sync",
+    "dotenv": "18.0.8 — requires Artifactory sync",
+    "typescript": "7.0.2 — requires Artifactory sync"
   }
 }

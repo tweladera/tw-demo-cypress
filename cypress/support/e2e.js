@@ -17,4 +17,15 @@
 import './commands'
 import 'cypress-mochawesome-reporter/register'
 import 'cypress-plugin-api'
+// Accessibility testing — cypress-axe provides cy.injectAxe() and cy.checkA11y()
+// cypress-axe and axe-core are NOT in the corporate Artifactory registry.
+// To enable: request Artifactory admin to add them, then run:
+//   npm install --save-dev cypress-axe axe-core
+// and uncomment the line below:
+// import 'cypress-axe'
+
+// OrangeHRM's app code throws unhandled promise rejections during navigation
+// (e.g., when Cypress logs out and the Vue app tries to complete pending async requests).
+// Since this is a third-party demo site, we suppress app-level errors globally.
+Cypress.on('uncaught:exception', () => false)
 

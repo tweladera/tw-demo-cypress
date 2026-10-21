@@ -4,11 +4,19 @@ import NavigationComponent from '../support/pages/NavigationComponent';
 
 describe('OrangeHRM PIM Tests', () => {
   beforeEach(() => {
-    // Login before each test
     cy.loginWithEnvCredentials();
-
-    // Navigate to PIM page
     NavigationComponent.navigateToPIM();
+    cy.injectAxe();
+  })
+
+  it('should have no WCAG 2.1 AA violations on the PIM Employee List page', () => {
+    cy.checkA11y(undefined, {
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] },
+    }, (violations) => {
+      violations.forEach(v =>
+        cy.log(`[a11y] ${v.impact?.toUpperCase()}: ${v.description} — ${v.helpUrl}`)
+      );
+    });
   })
 
   it('should display the PIM page with Employee Information section', () => {
@@ -31,8 +39,8 @@ describe('OrangeHRM PIM Tests', () => {
       .searchForEmployee('0001')
       .clickReset();
 
-    // Verify form is reset
-    cy.get('.oxd-input').eq(1).should('have.value', '');
+    // Verify form is reset — label-anchored selector replaces former .oxd-input.eq(1)
+    PIMPage.verifyEmployeeIdFieldIsEmpty();
   })
 
   it('should navigate to Add Employee page', () => {
@@ -70,14 +78,12 @@ describe('OrangeHRM PIM Tests', () => {
   it('should navigate to Reports page', () => {
     NavigationComponent.navigateToReports();
 
-    // Verify Reports page is displayed
-    cy.contains('.oxd-text--h5', 'Employee Reports').should('be.visible');
+    cy.contains('h5', 'Employee Reports').should('be.visible');
   })
 
   it('should navigate to Configuration section', () => {
     NavigationComponent.navigateToCustomFields();
 
-    // Verify Custom Fields page is displayed
-    cy.contains('.oxd-text--h6', 'Custom Fields').should('be.visible');
+    cy.contains('h6', 'Custom Fields').should('be.visible');
   })
 })

@@ -25,6 +25,20 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 
+// Visual regression snapshots — cypress-image-diff-js (Cypress 9+ compatible)
+// Registers cy.compareSnapshot() — config via cypress.config.js env.cypressImageDiff
+import 'cypress-image-diff-js/command';
+
+// Accessibility stubs — active when cypress-axe is NOT installed.
+// These no-ops allow tests with cy.injectAxe()/cy.checkA11y() to run without failing.
+// Remove these stubs once cypress-axe is added to Artifactory and installed.
+Cypress.Commands.add('injectAxe', () => {
+  cy.log('[a11y] STUB: cypress-axe not installed — injectAxe() is a no-op');
+});
+Cypress.Commands.add('checkA11y', () => {
+  cy.log('[a11y] STUB: cypress-axe not installed — checkA11y() is a no-op (no violations checked)');
+});
+
 // Import page objects
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';

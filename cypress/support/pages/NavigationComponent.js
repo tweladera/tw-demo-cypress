@@ -32,6 +32,16 @@ class NavigationComponent {
     navigateToPIM() {
         return this.navigateToMainMenuItem('PIM');
     }
+
+    navigateToLeave() {
+        return this.navigateToMainMenuItem('Leave');
+    }
+
+    navigateToApplyLeave() {
+        // "Apply" is a top-level nav item in Leave, not a sub-link
+        this.clickTopbarNavItem('Apply');
+        return this;
+    }
     
     // Topbar navigation actions
     clickTopbarNavItem(name) {
