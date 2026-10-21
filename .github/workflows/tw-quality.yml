@@ -1,0 +1,205 @@
+name: Quality Gates — E2E / A11y / Visual
+
+on:
+  pull_request:
+    branches: [main, master, develop]
+  push:
+    branches: [main, master]
+  schedule:
+    - cron: '0 2 * * *'   # 2:00 AM UTC — nightly visual regression
+  workflow_dispatch:
+    inputs:
+      run_visual:
+        description: 'Run visual regression comparison'
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '20'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STAGE 1 — Install dependencies (shared cache)
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+  install:
+    name: Install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # STAGE 2 — E2E Tests (blocks merge on failure)
+  # ─────────────────────────────────────────────────────────────────────────────
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      fail-fast: false
+      matrix:
+        spec:
+          - cypress/e2e/orangehrm-login.cy.js
+          - cypress/e2e/orangehrm-navigation.cy.js
+          - cypress/e2e/orangehrm-admin.cy.js
+          - cypress/e2e/orangehrm-admin-crud.cy.js
+          - cypress/e2e/orangehrm-pim.cy.js
+          - cypress/e2e/orangehrm-pim-edit.cy.js
+          - cypress/e2e/orangehrm-leave.cy.js
+          - cypress/e2e/orangehrm-leave-extended.cy.js
+          - cypress/e2e/orangehrm-logout.cy.js
+          - cypress/e2e/orangehrm-password-reset.cy.js
+          - cypress/e2e/orangehrm-security.cy.js
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Run Cypress E2E — ${{ matrix.spec }}
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: chrome
+          spec: ${{ matrix.spec }}
+          config: video=false
+        env:
+          ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME }}
+          ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD }}
+
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-screenshots-${{ strategy.job-index }}
+          path: cypress/results/screenshots/
+          retention-days: 7
+
+      - name: Upload Mochawesome report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-report-${{ strategy.job-index }}
+          path: cypress/results/report/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # STAGE 3 — Accessibility Audit (warns, does not block merge)
+  # ─────────────────────────────────────────────────────────────────────────────
+  a11y:
+    name: Accessibility Audit (WCAG 2.1 AA)
+    runs-on: ubuntu-latest
+    needs: install
+    # Stubs run today; set allow_failure=false once cypress-axe is in Artifactory
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Run A11y audit
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: chrome
+          spec: cypress/e2e/orangehrm-a11y.cy.js
+          config: video=false
+        env:
+          ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME }}
+          ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD }}
+
+      - name: Upload A11y report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a11y-report
+          path: cypress/results/report/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # STAGE 4 — Visual Regression (nightly + manual dispatch only)
+  # ─────────────────────────────────────────────────────────────────────────────
+  visual-regression:
+    name: Visual Regression
+    runs-on: ubuntu-latest
+    needs: install
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.run_visual == true)
+    # Visual diffs warn but do not block — threshold is 0.1% (cypress.config.js)
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Compare visual snapshots against baseline
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: chrome
+          spec: cypress/e2e/visual/**
+          config: video=false
+        env:
+          ORANGEHRM_USERNAME: ${{ secrets.ORANGEHRM_USERNAME }}
+          ORANGEHRM_PASSWORD: ${{ secrets.ORANGEHRM_PASSWORD }}
+
+      - name: Upload visual diffs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-diffs
+          path: |
+            cypress/snapshots/diff/
+            cypress/snapshots/comparison/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # GATE — Required check summary (PR merge gate)
+  # ─────────────────────────────────────────────────────────────────────────────
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [e2e, a11y]
+    if: always()
+    steps:
+      - name: Evaluate gate
+        run: |
+          e2e_result="${{ needs.e2e.result }}"
+          a11y_result="${{ needs.a11y.result }}"
+
+          echo "E2E result:  $e2e_result"
+          echo "A11y result: $a11y_result (non-blocking)"
+
+          if [ "$e2e_result" != "success" ]; then
+            echo "::error::Quality gate FAILED — E2E tests must pass before merge."
+            exit 1
+          fi
+
+          echo "Quality gate PASSED"
