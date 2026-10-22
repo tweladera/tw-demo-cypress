@@ -54,11 +54,11 @@ class AdminPage {
     }
 
     selectUserRole(role) {
-        // Label-anchored: finds the User Role dropdown by its label — no .eq() index
-        // .should('be.visible') triggers retry until the combobox is interactive in CI
+        // OrangeHRM's custom select uses .oxd-select-text (not a native <select>).
+        // Navigate via .parent() — .oxd-input-group does not always wrap both label and input.
         cy.contains('.oxd-label', 'User Role')
-            .closest('.oxd-input-group')
-            .find('[role="combobox"]')
+            .parent()
+            .find('.oxd-select-text')
             .should('be.visible')
             .click();
         cy.contains('.oxd-select-option', role).click();
@@ -66,10 +66,9 @@ class AdminPage {
     }
 
     selectStatus(status) {
-        // Label-anchored: finds the Status dropdown by its label — no .eq() index
         cy.contains('.oxd-label', 'Status')
-            .closest('.oxd-input-group')
-            .find('[role="combobox"]')
+            .parent()
+            .find('.oxd-select-text')
             .should('be.visible')
             .click();
         cy.contains('.oxd-select-option', status).click();
