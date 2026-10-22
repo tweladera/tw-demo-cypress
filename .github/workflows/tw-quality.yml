@@ -18,7 +18,7 @@ env:
   NODE_VERSION: '24'
 
 # ─────────────────────────────────────────────────────────────────────────────
-# STAGE 1 — Install dependencies (shared cache)
+# STAGE 1 — Install dependencies + Cypress binary (shared cache)
 # ─────────────────────────────────────────────────────────────────────────────
 jobs:
   install:
@@ -36,11 +36,16 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Cache node_modules
+      - name: Verify Cypress binary
+        run: npx cypress verify
+
+      - name: Cache node_modules + Cypress binary
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-modules-${{ hashFiles('package-lock.json') }}
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: deps-cypress-${{ hashFiles('package-lock.json') }}
 
   # ─────────────────────────────────────────────────────────────────────────────
   # STAGE 2 — E2E Tests (blocks merge on failure)
@@ -68,11 +73,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore node_modules cache
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules + Cypress binary
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-modules-${{ hashFiles('package-lock.json') }}
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: deps-cypress-${{ hashFiles('package-lock.json') }}
 
       - name: Run Cypress E2E — ${{ matrix.spec }}
         uses: cypress-io/github-action@v6
@@ -108,16 +120,23 @@ jobs:
     name: Accessibility Audit (WCAG 2.1 AA)
     runs-on: ubuntu-latest
     needs: install
-    # Stubs run today; set allow_failure=false once cypress-axe is in Artifactory
+    # Stubs run today; set continue-on-error=false once cypress-axe is in Artifactory
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore node_modules cache
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules + Cypress binary
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-modules-${{ hashFiles('package-lock.json') }}
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: deps-cypress-${{ hashFiles('package-lock.json') }}
 
       - name: Run A11y audit
         uses: cypress-io/github-action@v6
@@ -148,16 +167,22 @@ jobs:
     if: |
       github.event_name == 'schedule' ||
       (github.event_name == 'workflow_dispatch' && inputs.run_visual == true)
-    # Visual diffs warn but do not block — threshold is 0.1% (cypress.config.js)
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore node_modules cache
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules + Cypress binary
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-modules-${{ hashFiles('package-lock.json') }}
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: deps-cypress-${{ hashFiles('package-lock.json') }}
 
       - name: Compare visual snapshots against baseline
         uses: cypress-io/github-action@v6
