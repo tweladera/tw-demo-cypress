@@ -55,9 +55,11 @@ class AdminPage {
 
     selectUserRole(role) {
         // Label-anchored: finds the User Role dropdown by its label — no .eq() index
+        // .should('be.visible') triggers retry until the combobox is interactive in CI
         cy.contains('.oxd-label', 'User Role')
             .closest('.oxd-input-group')
             .find('[role="combobox"]')
+            .should('be.visible')
             .click();
         cy.contains('.oxd-select-option', role).click();
         return this;
@@ -68,6 +70,7 @@ class AdminPage {
         cy.contains('.oxd-label', 'Status')
             .closest('.oxd-input-group')
             .find('[role="combobox"]')
+            .should('be.visible')
             .click();
         cy.contains('.oxd-select-option', status).click();
         return this;

@@ -154,11 +154,12 @@ describe('PIM Employee Management — Extended Coverage', () => {
 
     // Feature: Employee list API does not return 5xx
     it('@contract — Employee List API returns valid response without server error', () => {
-      cy.intercept('GET', '**/viewEmployeeList**').as('employeeList');
+      // Intercept before the action that triggers the request
+      cy.intercept('GET', /viewEmployeeList|\/api\/v2\/pim\/employees/).as('employeeList');
 
       NavigationComponent.navigateToPIM();
 
-      cy.wait('@employeeList').then((interception) => {
+      cy.wait('@employeeList', { timeout: 15000 }).then((interception) => {
         expect(interception.response.statusCode).to.be.lessThan(500);
       });
 
@@ -167,11 +168,12 @@ describe('PIM Employee Management — Extended Coverage', () => {
 
     // Feature: Employee search API returns filtered results
     it('@contract — Employee search API responds without 5xx error', () => {
-      cy.intercept('GET', '**/viewEmployeeList**').as('searchEmployees');
+      // Intercept must be registered before the search action fires the request
+      cy.intercept('GET', /viewEmployeeList|\/api\/v2\/pim\/employees/).as('searchEmployees');
 
       PIMPage.searchForEmployee('0001').clickSearch();
 
-      cy.wait('@searchEmployees').then((interception) => {
+      cy.wait('@searchEmployees', { timeout: 15000 }).then((interception) => {
         expect(interception.response.statusCode).to.be.lessThan(500);
       });
     });

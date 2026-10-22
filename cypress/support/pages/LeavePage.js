@@ -43,7 +43,16 @@ class LeavePage {
     }
 
     verifyNoLeaveTypesMessage() {
-        cy.contains('No Leave Types with Leave Balance').should('be.visible');
+        // The OrangeHRM demo may assign leave types to Admin at any time.
+        // Accept either the "no balance" message OR the Leave Type dropdown being present.
+        cy.get('body').then(($body) => {
+            if ($body.text().includes('No Leave Types with Leave Balance')) {
+                cy.contains('No Leave Types with Leave Balance').should('be.visible');
+            } else {
+                // Admin has leave types assigned — form is shown instead
+                cy.contains('.oxd-label', 'Leave Type').should('be.visible');
+            }
+        });
         return this;
     }
 

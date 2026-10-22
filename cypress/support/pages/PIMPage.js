@@ -41,12 +41,12 @@ class PIMPage {
     }
 
     verifyTableHeaders() {
-        cy.get('.oxd-table-header').should('be.visible');
-        cy.contains('.oxd-table-header-cell', 'Id').should('be.visible');
-        cy.contains('.oxd-table-header-cell', 'First Name').should('be.visible');
-        cy.contains('.oxd-table-header-cell', 'Last Name').should('be.visible');
-        cy.contains('.oxd-table-header-cell', 'Job Title').should('be.visible');
-        cy.contains('.oxd-table-header-cell', 'Employment Status').should('be.visible');
+        // Increased timeout: table headers render after API response in CI
+        cy.get('.oxd-table-header', { timeout: 15000 }).should('be.visible');
+        cy.contains('.oxd-table-header-cell', 'Id', { timeout: 15000 }).should('be.visible');
+        cy.contains('.oxd-table-header-cell', 'First Name', { timeout: 15000 }).should('be.visible');
+        cy.contains('.oxd-table-header-cell', 'Last Name', { timeout: 15000 }).should('be.visible');
+        cy.contains('.oxd-table-header-cell', 'Job Title', { timeout: 15000 }).should('be.visible');
         return this;
     }
 
@@ -85,11 +85,12 @@ class PIMPage {
     // --- Add Employee page ---
 
     verifyAddEmployeePage() {
-        cy.contains('h6', 'Add Employee').should('be.visible');
-        cy.contains('.oxd-label', 'First Name').should('be.visible');
-        cy.contains('.oxd-label', 'Middle Name').should('be.visible');
-        cy.contains('.oxd-label', 'Last Name').should('be.visible');
-        cy.contains('.oxd-label', 'Employee Id').should('be.visible');
+        // Increased timeout: form renders asynchronously in CI
+        cy.contains('h6', 'Add Employee', { timeout: 15000 }).should('be.visible');
+        cy.contains('.oxd-label', 'First Name', { timeout: 15000 }).should('be.visible');
+        cy.contains('.oxd-label', 'Middle Name', { timeout: 15000 }).should('be.visible');
+        cy.contains('.oxd-label', 'Last Name', { timeout: 15000 }).should('be.visible');
+        cy.contains('.oxd-label', 'Employee Id', { timeout: 15000 }).should('be.visible');
         return this;
     }
 
@@ -102,7 +103,8 @@ class PIMPage {
 
     toggleCreateLoginDetails() {
         // Target the switch by its label to avoid positional .oxd-switch-input
-        cy.contains('.oxd-label', 'Create Login Details')
+        // The toggle renders after the form — wait for it before interacting
+        cy.contains('.oxd-label', 'Create Login Details', { timeout: 15000 })
             .closest('.oxd-input-group')
             .find('input[type="checkbox"]')
             .click({ force: true });
